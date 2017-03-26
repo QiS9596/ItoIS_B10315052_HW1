@@ -200,17 +200,42 @@ class PlayFairCipher(baseCiphering):
 
     def encrypting(self, plainText):
         self.generateCipherMatrix()
-        handledText = self.devide(plainText)
+        handledText = []
+        for a in range(0,len(plainText)):
+            if not plainText[a] == 'j':
+                handledText.append(plainText[a])
+            elif plainText[a] == 'j':
+                handledText.append('i')
+        handledText = self.devide(handledText)
         handledText = self.replace(handledText, actionType=self.ENCRPTING_TYPE)
-        return handledText
+        resultStr = ""
+        for a in handledText:
+            resultStr += a
+        return resultStr
 
     def decrypting(self, cyptherText):
         self.generateCipherMatrix()
         handledText = self.devide(cyptherText)
         handledText = self.replace(handledText, actionType=self.DECRPTING_TYPE)
-        return handledText
+        index = 0
+        while True:
+            if index < 0 or index >= len(handledText):
+                break
+            if (handledText[index] == 'x'):
+                if index == 0:
+                    pass
+                elif index == len(handledText)-1:
+                    handledText.pop(index)
+                else :
+                    if handledText[index-1] == handledText[index+1]:
+                        handledText.pop(index)
+            index += 1
+        resultStr = ""
+        for a in handledText:
+            resultStr += a
+        return resultStr
 
 cc = PlayFairCipher()
 cc.generateCipherMatrix()
-print(cc.encrypting("abc"))
-print(cc.decrypting(cc.encrypting("abc")))
+print(cc.encrypting("abcji"))
+print(cc.decrypting(cc.encrypting("aabcji")))
