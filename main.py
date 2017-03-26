@@ -11,6 +11,10 @@ DEFAULT_MONO_KEY = {
 DEFAULT_VERNAM_KEY = "kmt"
 DEFAULT_PLAYFAIR_KEY = "dpp"
 DEFAULT_ROW_TRANS_KEY = [5,2,8,3,4,6,7,1]
+DEFAULT_PRODUCT_KEY = {1:15,2:11,3:2,4:10,5:16,
+                       6:3,7:7,8:14,9:4,10:12,
+                       11:9,12:6,13:1,14:5,15:8,
+                       16:13}
 from abc import abstractclassmethod
 class baseCiphering:
     dict = {'a':0,'b':1,'c':2,'d':3,'e':4,
@@ -54,7 +58,7 @@ class CaesarCipher(baseCiphering):
                 num_list[a] -= 26
             if num_list[a] < 0:
                 num_list[a] += 26
-            print(num_list[a])
+
 
         result = ""
         for a in num_list:
@@ -63,7 +67,7 @@ class CaesarCipher(baseCiphering):
 
     def decrypting(self, cyptherText):
         self.key = -self.key
-        print(self.encrypting(cyptherText))
+        return self.encrypting(cyptherText)
 
 
 class MonoalphabeticCipher(baseCiphering):
@@ -273,6 +277,10 @@ class VernamCipher(baseCiphering):
         tempStr = ""
         for idx in tempLst:
             tempStr += str(idx)
+        print(tempStr)
+        print(int(tempStr,2))
+        print(x)
+        print(y)
         return self.rev_dict[int(tempStr,2)]
 
     def encrypting(self, plainText):
@@ -343,6 +351,36 @@ class RowTransportation(baseCiphering):
                 result += rows[b][mainPart]
         return result
 
-rt = RowTransportation()
-print(rt.encrypting("sentfrommyiphome"))
-print(rt.decrypting(rt.encrypting("sentfrommyiphone")))
+class ProductCipher(baseCiphering):
+    def __init__(self,key=DEFAULT_PRODUCT_KEY):
+        super(ProductCipher, self).__init__(key)
+    def encrypting(self, plainText):
+        reversePad = self.reverse_dict(self.key)
+        result = self.transport(plainText,reversePad)
+        return result
+
+    def transport(self,source,keyPad):
+        result = ""
+        for a in range(0,len(source)):
+            result += source[keyPad[a+1]-1]
+        return result
+    def decrypting(self, cyptherText):
+        return self.transport(cyptherText,self.key)
+
+TESTSTRING = "sentfrommyiphone"
+
+def test(cipherMachine, str):
+    print(type(cipherMachine))
+    a = cipherMachine.encrypting(str)
+    print(a)
+    print(cipherMachine.decrypting(a))
+
+lst = []
+lst.append(CaesarCipher())
+lst.append(MonoalphabeticCipher())
+lst.append(PlayFairCipher())
+"lst.append(VernamCipher())"
+lst.append(RowTransportation())
+lst.append(ProductCipher())
+for a in lst:
+    test(a, TESTSTRING)
