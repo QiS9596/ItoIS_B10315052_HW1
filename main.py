@@ -22,7 +22,8 @@ class baseCiphering:
             'k':10,'l':11,'m':12,'n':13,'o':14,
             'p':15,'q':16,'r':17,'s':18,'t':19,
             'u':20,'v':21,'w':22,'x':23,'y':24,
-            'z':25}
+            'z':25,'A':26,'B':27,'C':28,'D':29,
+            'E':30,'F':31}
     rev_dict = {}
     def __init__(self, key):
         self.setKey(key)
@@ -266,7 +267,7 @@ class VernamCipher(baseCiphering):
 
     def generateKeyStream(self, plainText):
         result = list(self.key)
-        result.append(plainText)
+        result.extend(list(plainText))
         result = result[:len(plainText)]
         return result
 
@@ -277,10 +278,6 @@ class VernamCipher(baseCiphering):
         tempStr = ""
         for idx in tempLst:
             tempStr += str(idx)
-        print(tempStr)
-        print(int(tempStr,2))
-        print(x)
-        print(y)
         return self.rev_dict[int(tempStr,2)]
 
     def encrypting(self, plainText):
@@ -379,7 +376,7 @@ lst = []
 lst.append(CaesarCipher())
 lst.append(MonoalphabeticCipher())
 lst.append(PlayFairCipher())
-"lst.append(VernamCipher())"
+lst.append(VernamCipher())
 lst.append(RowTransportation())
 lst.append(ProductCipher())
 for a in lst:
