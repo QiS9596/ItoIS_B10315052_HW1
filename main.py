@@ -8,6 +8,7 @@ DEFAULT_MONO_KEY = {
     'u':'x','v':'c','w':'v','x':'b','y':'n',
     'z':'m'
 }
+DEFAULT_VERNAM_KEY = "kmt"
 DEFAULT_PLAYFAIR_KEY = "dpp"
 from abc import abstractclassmethod
 class baseCiphering:
@@ -235,7 +236,62 @@ class PlayFairCipher(baseCiphering):
             resultStr += a
         return resultStr
 
-cc = PlayFairCipher()
-cc.generateCipherMatrix()
-print(cc.encrypting("abcji"))
-print(cc.decrypting(cc.encrypting("aabcji")))
+class VernamCipher(baseCiphering):
+    def __init__(self,key = DEFAULT_VERNAM_KEY):
+        super(VernamCipher, self).__init__(key)
+    def XOR(self,stream1,stream2):
+        if len(stream1) != len(stream2):
+            return
+        result = []
+        for a in range(0, len(stream1)):
+            if stream1[a] == stream2[a]:
+                result.append(0)
+            else: result.append(1)
+        return result
+    def decimalToBinaryList(self,decimalInput):
+        tempStr = bin(decimalInput)
+        resultLst = []
+        for a in range(2,len(tempStr)):
+            resultLst.append(tempStr[a])
+        while True:
+            if len(resultLst)<5:
+                resultLst.insert(0,'0')
+            else: break
+        return resultLst
+
+    def generateKeyStream(self, plainText):
+        result = list(self.key)
+        result.append(plainText)
+        result = result[:len(plainText)]
+        return result
+
+    def handle(self,inputx,inputy):
+        x = self.dict[inputx]
+        y = self.dict[inputy]
+        tempLst = (self.XOR(self.decimalToBinaryList(x),self.decimalToBinaryList(y)))
+        tempStr = ""
+        for idx in tempLst:
+            tempStr += str(idx)
+        return self.rev_dict[int(tempStr,2)]
+
+    def encrypting(self, plainText):
+        result = ""
+        keyStream = self.generateKeyStream(plainText)
+        for a in range(0, len(plainText)):
+            result+=str(self.handle(keyStream[a],plainText[a]))
+        return result
+
+    def decrypting(self, cyptherText):
+        result = ""
+        keyStream = []
+        for a in self.key:
+            keyStream.append(a)
+        for a in range(0,len(cyptherText)):
+            result += str(self.handle(keyStream[a],cyptherText[a]))
+            keyStream.append(result[a])
+        return result
+
+
+vc = VernamCipher()
+print(vc.encrypting("abc"))
+print(vc.decrypting("knr"))
