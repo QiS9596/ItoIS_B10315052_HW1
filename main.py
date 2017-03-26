@@ -10,6 +10,7 @@ DEFAULT_MONO_KEY = {
 }
 DEFAULT_VERNAM_KEY = "kmt"
 DEFAULT_PLAYFAIR_KEY = "dpp"
+DEFAULT_ROW_TRANS_KEY = [5,2,8,3,4,6,7,1]
 from abc import abstractclassmethod
 class baseCiphering:
     dict = {'a':0,'b':1,'c':2,'d':3,'e':4,
@@ -291,7 +292,57 @@ class VernamCipher(baseCiphering):
             keyStream.append(result[a])
         return result
 
+class RowTransportation(baseCiphering):
+    def __init__(self,key = DEFAULT_ROW_TRANS_KEY):
+        super(RowTransportation, self).__init__(key)
 
-vc = VernamCipher()
-print(vc.encrypting("abc"))
-print(vc.decrypting("knr"))
+
+    def generateKeyPad(self):
+        reverse_key = {}
+        for a in range(0,len(self.key)):
+            reverse_key[int(self.key[a])] = a
+        return reverse_key
+    def encrypting(self, plainText):
+        rows = []
+        for a in range(0, len(self.key)):
+            rows.append([])
+        for a in range(0,len(plainText)):
+            rows[a%len(self.key)].append(plainText[a])
+        reverse_key = self.generateKeyPad()
+        result = []
+        for a in sorted(reverse_key.keys()):
+            result.extend(rows[reverse_key[a]])
+        resultStr = ""
+        for a in result:
+            resultStr += a
+        return resultStr
+    def decrypting(self, cyptherText):
+        rowLength = []
+        extra = len(cyptherText)%len(self.key)
+        mainPart = int(len(cyptherText)/len(self.key))
+        for a in range(0,len(self.key)):
+            rowLength.append(mainPart)
+            if(a < extra):
+                rowLength[a] +=1
+        reverse_key = self.generateKeyPad()
+        rows = []
+        for a in range(0, len(self.key)):
+            rows.append([])
+
+        c = 0
+        for a in range(0, len(self.key)):
+            for b in range(0, rowLength[reverse_key[a+1]]):
+                rows[reverse_key[a+1]].append(cyptherText[c])
+                c += 1
+        result = ""
+        for a in range(0,mainPart):
+            for b in range(0,len(self.key)):
+                result += rows[b][a]
+        if extra != 0:
+            for b in range(0, extra):
+                result += rows[b][mainPart]
+        return result
+
+rt = RowTransportation()
+print(rt.encrypting("sentfrommyiphome"))
+print(rt.decrypting(rt.encrypting("sentfrommyiphone")))
