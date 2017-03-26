@@ -1,4 +1,4 @@
-print("Hello, world")
+print("Homework one of Intro to Information Security, B10315052 SongQi")
 DEFAULT_CAESAR_KEY = 3
 DEFAULT_MONO_KEY = {
     'a':'q','b':'w','c':'e','d':'r','e':'t',
